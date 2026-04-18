@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Student Attendance System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=350, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f3;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .box {
+            background: #fff;
+            width: 350px;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px gray;
+        }
+        input, select, button {
+            width: 90%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        button {
+            background: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        button:hover {
+            background: #075e07;
+        }
+        .hidden {
+            display: none;
+        }
+        ul {
+            text-align: left;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== LOGIN SECTION ========== -->
+<div id="loginBox" class="box">
+    <h2>Login</h2>
+    <input type="text" id="user" placeholder="Username" autocomplete="username">
+    <input type="password" id="pass" placeholder="Password" autocomplete="current-password">
+    <button onclick="login()">Login</button>
+</div>
+
+<!-- ========== MAIN SYSTEM SECTION ========== -->
+<div id="mainBox" class="box hidden">
+    <h2>Attendance System</h2>
+    <button onclick="showRegister()">Registration</button>
+    <button onclick="showAttendance()">Attendance</button>
+    <button onclick="logout()">Logout</button>
+
+    <!-- Registration area -->
+    <div id="regBox" class="hidden">
+        <h3>Registration</h3>
+        <input type="text" id="name" placeholder="Full Name">
+        <input type="text" id="phone" placeholder="Phone Number">
+        <select id="country">
+            <option value="">Select Country</option>
+            <option>Ethiopia</option>
+            <option>USA</option>
+            <option>Turkey</option>
+        </select>
+        <select id="gender">
+            <option value="">Select Gender</option>
+            <option>Dhiira</option>
+            <option>Dubara</option>
+        </select>
+        <button onclick="register()">Submit</button>
+        <h4>Registered Students</h4>
+        <ul id="studentList"></ul>
+    </div>
+
+    <!-- Attendance area -->
+    <div id="attBox" class="hidden">
+        <h3>Attendance (Today)</h3>
+        <input type="text" id="attName" placeholder="Enter Name">
+        <button onclick="mark()">Mark Present</button>
+        <h4>Attendance List</h4>
+        <ul id="attList"></ul>
+    </div>
+</div>
+
+<script>
+    // LOGIN FUNCTIONALITY
+    function login() {
+        let u = document.getElementById("user").value.trim();
+        let p = document.getElementById("pass").value.trim();
+
+        // Hardcoded credentials. Replace these for better security in production.
+        if(u === "imran" && p === "turkiye12@fileber") {
+            document.getElementById("loginBox").classList.add("hidden");
+            document.getElementById("mainBox").classList.remove("hidden");
+        } else {
+            alert("Wrong username or password ❌");
+        }
+    }
+
+    function logout() {
+        // Clear sensitive fields
+        document.getElementById("user").value = "";
+        document.getElementById("pass").value = "";
+        location.reload();
+    }
+
+    // SHOW REGISTRATION UI
+    function showRegister() {
+        document.getElementById("regBox").classList.remove("hidden");
+        document.getElementById("attBox").classList.add("hidden");
+        showStudents();
+    }
+
+    // SHOW ATTENDANCE UI
+    function showAttendance() {
+        document.getElementById("attBox").classList.remove("hidden");
+        document.getElementById("regBox").classList.add("hidden");
+        showAttendanceList();
+    }
+
+    // REGISTRATION FUNCTIONALITY
+    function register() {
+        let name = document.getElementById("name").value.trim();
+        let phone = document.getElementById("phone").value.trim();
+        let country = document.getElementById("country").value;
+        let gender = document.getElementById("gender").value;
+
+        // Basic validation
+        if(!name || !phone || !country || !gender) {
+            alert("Please fill in all registration details.");
+            return;
+        }
+
+        let students = JSON.parse(localStorage.getItem("students") || "[]");
+        students.push({ name, phone, country, gender });
+        localStorage.setItem("students", JSON.stringify(students));
+        document.getElementById("name").value = "";
+        document.getElementById("phone").value = "";
+        document.getElementById("country").value = "";
+        document.getElementById("gender").value = "";
+        showStudents();
+    }
+
+    function showStudents() {
+        let students = JSON.parse(localStorage.getItem("students") || "[]");
+        let list = document.getElementById("studentList");
+        list.innerHTML = "";
+        students.forEach(s => {
+            list.innerHTML += `<li>${s.name} | ${s.phone} | ${s.country} | ${s.gender}</li>`;
+        });
+    }
+
+    // ATTENDANCE FUNCTIONALITY
+    function mark() {
+        let name = document.getElementById("attName").value.trim();
+        if(!name) {
+            alert("Please enter your name to mark attendance.");
+            return;
+        }
+        let att = JSON.parse(localStorage.getItem("attendance") || "[]");
+        att.push({
+            name: name,
+            date: new Date().toLocaleDateString()
+        });
+        localStorage.setItem("attendance", JSON.stringify(att));
+        document.getElementById("attName").value = "";
+        showAttendanceList();
+    }
+
+    function showAttendanceList() {
+        let att = JSON.parse(localStorage.getItem("attendance") || "[]");
+        let list = document.getElementById("attList");
+        list.innerHTML = "";
+        att.forEach(a => {
+            list.innerHTML += `<li>${a.name} - ${a.date}</li>`;
+        });
+    }
+</script>
+</body>
+  </html>
